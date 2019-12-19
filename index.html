@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <style>
+            input[type="text"]{
+                width: 400px;
+            }
+            input{
+                padding:5px;
+            }
+            .row{
+                border-bottom: solid 1px #000;
+            }
+        </style>
+    </head>
+    <body>
+        Nombre: <input type="text" id="inputname" />
+        <input type="button" value="Agregar" onclick="addName()" /> 
+        <input type="button" value="Limpiar" onclick="clearAll()" /> 
+        <br/> <br/>
+        Lista de participantes: <br />
+        <div id="namelist"></div>
+        <br /><br />
+        <input type="button" value="Generar" onclick="doRaffle()" />
+        <br /><br />
+        Esquema de regalos:<br />
+        <div id="raffleResult"></div>
+    </body>
+    <script type="text/javascript">
+        var namelist = []
+        var namelistMatchet = []
+        var namelistMatchetText = [] 
+        var gifteds = []
+
+        function addName(){
+            var name = document.getElementById("inputname").value
+            namelist.push(name)
+            
+            printList("namelist", namelist)
+            document.getElementById("inputname").value = ""
+            document.getElementById("inputname").focus();
+        }
+
+        function doRaffle(){
+            namelistMatchet = []
+            namelistMatchetText = [] 
+            gifteds = []
+
+            var participants = parseInt(namelist.length)
+            for(var gifterIndex=0; gifterIndex<namelist.length; gifterIndex++){
+                var giftedIndex = -1
+                do{
+                    giftedIndex = Math.floor(Math.random() * participants);  
+                }while(giftedIndex === -1 
+                    || giftedIndex === gifterIndex 
+                    || giftedAbuser(giftedIndex) 
+                    || reverseConflict(gifterIndex, giftedIndex))
+
+                namelistMatchet.push({
+                    gifter: gifterIndex,
+                    gifted: giftedIndex
+                })
+                namelistMatchetText.push(
+                    namelist[gifterIndex] + " -> " + 
+                    namelist[giftedIndex])
+                gifteds.push(giftedIndex)
+            }
+            printList("raffleResult", namelistMatchetText)
+        }
+
+        function giftedAbuser(index){
+            const found = gifteds.find(element => element === index);
+            if(found === undefined)
+                return false
+            else
+                return true
+        }
+
+        function reverseConflict(gifter, gifted){
+            var res = false;
+            for(var i=0; i<namelistMatchet.length; i++){
+                if(namelistMatchet[i].gifted === gifter && namelistMatchet[i].gifter === gifted){
+                    res = true
+                    break;
+                }
+            }
+            return res;
+        }
+
+        var input = document.getElementById("inputname");
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                addName()
+            }
+        });
+
+        function printList(divName, list){
+            var listString = ""
+            list.forEach(item => {
+                listString += ("<div class='row'>" + item + "</div>")
+            })
+            document.getElementById(divName).innerHTML = listString
+        }
+
+        function clearAll(){
+            namelist = []
+            namelistMatchet = []
+            namelistMatchetText = [] 
+            gifteds = []
+
+            printList("namelist", namelist)
+            printList("raffleResult", namelistMatchetText)
+            document.getElementById("inputname").value = ""
+            document.getElementById("inputname").focus();
+        } 
+    </script>
+</html>
